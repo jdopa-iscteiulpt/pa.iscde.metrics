@@ -87,7 +87,7 @@ public class Testview implements PidescoView{
 		for(int i = 0; i<baseMetricsForClass.length; i++) {
 			linesClassA.add(baseMetricsForClass[i]);
 		}
-
+		
 		
 		if(!PBS.getOpenedFile().equals(null)) {
 			getProjectMetricsOnViewedClass(PBS.getOpenedFile());
@@ -505,4 +505,20 @@ public class Testview implements PidescoView{
 
 		return newArray;
 	}
+	
+	
+	
+	public ArrayList<Metrics> getMetrics(File file){
+		
+		getProjectMetricsOnViewedClass(file);
+		
+		ArrayList<Metrics> newArray = new ArrayList<>();
+
+		for(int i  =  0; i < metricListClass.size(); i++) {
+			newArray.add(metricListClass.get(i));
+		}
+
+		return newArray;
+	}
+	
 }
