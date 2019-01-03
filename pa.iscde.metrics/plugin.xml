@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="extraMetrics" name="Extra Metrics" schema="schema/extraMetrics.exsd"/>
+   <extension
+         id="hellowview"
+         name="My view"
+         point="pt.iscte.pidesco.view">
+      <view
+            class="pa.iscde.metrics.demo.Testview"
+            icon="97ada9ea-816d-11e5-9dc5-79f5d659e5a8.png">
+      </view>
+   </extension>
+
+</plugin>
