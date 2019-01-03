@@ -507,7 +507,6 @@ public class Testview implements PidescoView, MetricsServices{
 		return newArray;
 	}
 	
-	
 	@Override
 	public ArrayList<Metrics> getMetrics(File file){
 		
