@@ -32,11 +32,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 import pa.iscde.metrics.extensibility.ExtraMetrics;
+import pa.iscde.metrics.services.MetricsServices;
 import pt.iscte.pidesco.extensibility.PidescoView;
 import pt.iscte.pidesco.javaeditor.service.JavaEditorListener;
 import pt.iscte.pidesco.javaeditor.service.JavaEditorServices;
 
-public class Testview implements PidescoView{
+public class Testview implements PidescoView, MetricsServices{
 
 
 	private Table classTable;
@@ -507,7 +508,7 @@ public class Testview implements PidescoView{
 	}
 	
 	
-	
+	@Override
 	public ArrayList<Metrics> getMetrics(File file){
 		
 		getProjectMetricsOnViewedClass(file);
@@ -520,5 +521,6 @@ public class Testview implements PidescoView{
 
 		return newArray;
 	}
+
 	
 }
