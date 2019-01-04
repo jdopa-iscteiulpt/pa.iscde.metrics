@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Scanner;
+
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -98,7 +100,6 @@ public class Testview implements PidescoView, MetricsServices{
 			buttonMake(viewArea,PBS.getOpenedFile());
 			getNewContent();
 			remaker(viewArea, PBS.getOpenedFile());
-			getMetricListClass();
 		}
 
 		viewArea.layout();
@@ -226,17 +227,18 @@ public class Testview implements PidescoView, MetricsServices{
 		MetricSearcher checker = new MetricSearcher();
 		FileContentScanner FCS = new FileContentScanner();
 
-		try {
-			countTotalLines(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 		fileAbsoPath = file.getAbsolutePath();
 
 		packagePath = fileAbsoPath.substring(0, file.getAbsolutePath().lastIndexOf('\\'));
 
 		FCS.parse(fileAbsoPath, checker);
+		
+		
+		try {
+			countTotalLines(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -394,6 +396,7 @@ public class Testview implements PidescoView, MetricsServices{
 		aux3 = aux3 + "pa.iscde.metrics/src/MetricsPackage.txt";
 		
 		try {
+			String auxy = "\\MetricsClass.txt";
 			BufferedReader scan = new BufferedReader(new FileReader(aux2));
 			String thisLine;
 
@@ -401,7 +404,7 @@ public class Testview implements PidescoView, MetricsServices{
 				Metrics m = new Metrics(thisLine, 0);
 				metricListClass.add(m);
 			}
-
+			
 			scan.close();
 
 			scan = new BufferedReader(new FileReader(aux3));
@@ -485,39 +488,21 @@ public class Testview implements PidescoView, MetricsServices{
 
 	}
 
-	public ArrayList<Metrics> getMetricListClass() {
-
-		ArrayList<Metrics> newArray = new ArrayList<>();
-
-		for(int i  =  0; i < metricListClass.size(); i++) {
-			newArray.add(metricListClass.get(i));
-		}
-
-		return newArray;
-	}
-
-	public ArrayList<Metrics> getMetricListPackage() {
-
-		ArrayList<Metrics> newArray = new ArrayList<>();
-
-		for(int i  =  0; i < metricListPackage.size(); i++) {
-			newArray.add(metricListPackage.get(i));
-		}
-
-		return newArray;
-	}
-	
 	@Override
 	public ArrayList<Metrics> getMetrics(File file){
+		
+		metricListClass.clear();
+		loadMetrics();
 		
 		getProjectMetricsOnViewedClass(file);
 		
 		ArrayList<Metrics> newArray = new ArrayList<>();
+		
 
 		for(int i  =  0; i < metricListClass.size(); i++) {
 			newArray.add(metricListClass.get(i));
 		}
-
+		
 		return newArray;
 	}
 
