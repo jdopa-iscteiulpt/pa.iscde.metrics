@@ -1,10 +1,5 @@
 package pa.iscde.metrics.demo;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-
 public class Metrics {
 	
 	private String name;

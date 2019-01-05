@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -151,8 +150,6 @@ public class Testview implements PidescoView, MetricsServices{
 		});
 	}
 
-
-
 	private void countTotalLines(File file) throws IOException {
 
 		BufferedReader buff = new BufferedReader(new FileReader(file));
@@ -207,8 +204,6 @@ public class Testview implements PidescoView, MetricsServices{
 		packageTable.setSize(packageTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-
-
 	private void getProjectMetricsOnPackage(){
 
 		MetricSearcher checker = new MetricSearcher();
@@ -220,7 +215,6 @@ public class Testview implements PidescoView, MetricsServices{
 		ar.clear();
 
 	}
-
 
 	private void getProjectMetricsOnViewedClass(File file) {
 
@@ -238,6 +232,151 @@ public class Testview implements PidescoView, MetricsServices{
 			countTotalLines(file);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+	}
+
+	private void reset() {
+
+		for(int i = 0; i<metricListPackage.size(); i++) {
+			if(!extraPackageMetrics.contains(metricListPackage.get(i))) {
+				metricListPackage.get(i).setValue(0);
+			}
+			for(int j = 0 ; j<extraPackageMetrics.size(); j++) {
+				if(metricListPackage.get(i).getName().equals(extraPackageMetrics.get(j).getName())) {
+					metricListPackage.get(i).setValue(extraPackageMetrics.get(j).getValue());
+				}
+			}
+		}
+
+		for(int i = 0; i<metricListClass.size(); i++) {
+			if(!extraClassMetrics.contains(metricListClass.get(i))) {
+				metricListClass.get(i).setValue(0);
+			}
+			for(int j = 0 ; j<extraClassMetrics.size(); j++) {
+				if(metricListClass.get(i).getName().equals(extraClassMetrics.get(j).getName())) {
+					metricListClass.get(i).setValue(extraClassMetrics.get(j).getValue());
+				}
+			}
+		}
+		button1.dispose();
+		for(int i = 0; i < buttonList.size(); i++) {
+			buttonList.get(i).dispose();
+		}
+		checklist.clear();
+		lastPackageVisited="";
+		classTable.dispose();
+		packageTable.dispose();
+	}
+	
+	private void loadMetrics() {
+		
+		
+		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+		
+		String [] aux = workspace.split("/");
+		
+		String aux2 = "";
+		
+		String aux3 = "";
+		
+		for(int i = 0; i<aux.length-1; i++) {
+			aux2 = aux2 + aux[i] + "/";
+		}
+		
+		aux3 = aux2;
+		
+		aux2 = aux2 + "pa.iscde.metrics/src/MetricsClass.txt";
+		
+		aux3 = aux3 + "pa.iscde.metrics/src/MetricsPackage.txt";
+		
+		try {
+			BufferedReader scan = new BufferedReader(new FileReader(aux2));
+			String thisLine;
+
+			while((thisLine = scan.readLine())!=null) {
+				Metrics m = new Metrics(thisLine, 0);
+				metricListClass.add(m);
+			}
+			
+			scan.close();
+
+			scan = new BufferedReader(new FileReader(aux3));
+
+			while((thisLine = scan.readLine())!=null){
+				Metrics m = new Metrics(thisLine, 0);
+				metricListPackage.add(m);
+			}
+
+			scan.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+	}
+
+	private void addNewMetricsToFile() {
+
+		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+		
+		String [] aux = workspace.split("/");
+		
+		String aux2 = "";
+		
+		for(int i = 0; i<aux.length-1; i++) {
+			aux2 = aux2 + aux[i] + "/";
+		}
+		
+		aux2 = aux2 + "pa.iscde.metrics/src/MetricsClass.txt";
+		
+		try {
+			File file = new File(aux2);
+			PrintWriter print = new PrintWriter(file, "UTF-8");
+			for(int i = 0; i < linesClassA.size(); i++) {
+				print.println(linesClassA.get(i));
+			}
+			print.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void remaker(Composite viewArea, File file) {
+		reset();
+		getProjectMetricsOnViewedClass(file);
+		makeMetricsTableClass(viewArea);
+		getProjectMetricsOnPackage();
+		makeMetricsTablePackage(viewArea);
+		buttonMake(viewArea, file);
+		viewArea.layout();
+	}
+
+	private void getNewContent() {
+		IExtensionRegistry reg = Platform.getExtensionRegistry();
+		IConfigurationElement[] elements = reg.getConfigurationElementsFor("pa.iscde.metrics.extraMetrics");
+		for(int i = 0 ; i < elements.length ; i++) {
+			try {
+				ExtraMetrics action = (ExtraMetrics) elements[i].createExecutableExtension("class");
+				action.addClassMetric(extraClassMetrics);
+				action.addPackageMetric(extraPackageMetrics);
+
+				for(int j = 0; j<extraClassMetrics.size();j++) {
+
+					if(!metricListClass.contains(extraClassMetrics.get(j))) {
+						metricListClass.add(extraClassMetrics.get(j));
+						linesClassA.add(extraClassMetrics.get(j).getName());
+					}
+				}
+
+				for(int j = 0; j<extraPackageMetrics.size(); j++) {
+					metricListPackage.add(extraPackageMetrics.get(j));
+				}
+
+			} catch (CoreException e1) {
+				e1.printStackTrace();
+			}
+
 		}
 
 	}
@@ -337,159 +476,16 @@ public class Testview implements PidescoView, MetricsServices{
 		}
 
 	}
-
-	private void reset() {
-
-		for(int i = 0; i<metricListPackage.size(); i++) {
-			if(!extraPackageMetrics.contains(metricListPackage.get(i))) {
-				metricListPackage.get(i).setValue(0);
-			}
-			for(int j = 0 ; j<extraPackageMetrics.size(); j++) {
-				if(metricListPackage.get(i).getName().equals(extraPackageMetrics.get(j).getName())) {
-					metricListPackage.get(i).setValue(extraPackageMetrics.get(j).getValue());
-				}
-			}
-		}
-
-		for(int i = 0; i<metricListClass.size(); i++) {
-			if(!extraClassMetrics.contains(metricListClass.get(i))) {
-				metricListClass.get(i).setValue(0);
-			}
-			for(int j = 0 ; j<extraClassMetrics.size(); j++) {
-				if(metricListClass.get(i).getName().equals(extraClassMetrics.get(j).getName())) {
-					metricListClass.get(i).setValue(extraClassMetrics.get(j).getValue());
-				}
-			}
-		}
-		button1.dispose();
-		for(int i = 0; i < buttonList.size(); i++) {
-			buttonList.get(i).dispose();
-		}
-		checklist.clear();
-		lastPackageVisited="";
-		classTable.dispose();
-		packageTable.dispose();
-	}
 	
+	/**
+	 * Creates an array with class Metrics from a file.
+	 * @param file, represents the file that's going to get his Metrics analyzed.
+	 * @return an array with all analyzed class Metrics.
+	 * 
+	 */
 	
-	
-
-	private void loadMetrics() {
-		
-		
-		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-		
-		String [] aux = workspace.split("/");
-		
-		String aux2 = "";
-		
-		String aux3 = "";
-		
-		for(int i = 0; i<aux.length-1; i++) {
-			aux2 = aux2 + aux[i] + "/";
-		}
-		
-		aux3 = aux2;
-		
-		aux2 = aux2 + "pa.iscde.metrics/src/MetricsClass.txt";
-		
-		aux3 = aux3 + "pa.iscde.metrics/src/MetricsPackage.txt";
-		
-		try {
-			String auxy = "\\MetricsClass.txt";
-			BufferedReader scan = new BufferedReader(new FileReader(aux2));
-			String thisLine;
-
-			while((thisLine = scan.readLine())!=null) {
-				Metrics m = new Metrics(thisLine, 0);
-				metricListClass.add(m);
-			}
-			
-			scan.close();
-
-			scan = new BufferedReader(new FileReader(aux3));
-
-			while((thisLine = scan.readLine())!=null){
-				Metrics m = new Metrics(thisLine, 0);
-				metricListPackage.add(m);
-			}
-
-			scan.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-	}
-
-	private void addNewMetricsToFile() {
-
-		String workspace = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
-		
-		String [] aux = workspace.split("/");
-		
-		String aux2 = "";
-		
-		for(int i = 0; i<aux.length-1; i++) {
-			aux2 = aux2 + aux[i] + "/";
-		}
-		
-		aux2 = aux2 + "pa.iscde.metrics/src/MetricsClass.txt";
-		
-		try {
-			File file = new File(aux2);
-			PrintWriter print = new PrintWriter(file, "UTF-8");
-			for(int i = 0; i < linesClassA.size(); i++) {
-				print.println(linesClassA.get(i));
-			}
-			print.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void remaker(Composite viewArea, File file) {
-		reset();
-		getProjectMetricsOnViewedClass(file);
-		makeMetricsTableClass(viewArea);
-		getProjectMetricsOnPackage();
-		makeMetricsTablePackage(viewArea);
-		buttonMake(viewArea, file);
-		viewArea.layout();
-	}
-
-
-	private void getNewContent() {
-		IExtensionRegistry reg = Platform.getExtensionRegistry();
-		IConfigurationElement[] elements = reg.getConfigurationElementsFor("pa.iscde.metrics.extraMetrics");
-		for(int i = 0 ; i < elements.length ; i++) {
-			try {
-				ExtraMetrics action = (ExtraMetrics) elements[i].createExecutableExtension("class");
-				action.addClassMetric(extraClassMetrics);
-				action.addPackageMetric(extraPackageMetrics);
-
-				for(int j = 0; j<extraClassMetrics.size();j++) {
-
-					if(!metricListClass.contains(extraClassMetrics.get(j))) {
-						metricListClass.add(extraClassMetrics.get(j));
-						linesClassA.add(extraClassMetrics.get(j).getName());
-					}
-				}
-
-				for(int j = 0; j<extraPackageMetrics.size(); j++) {
-					metricListPackage.add(extraPackageMetrics.get(j));
-				}
-
-			} catch (CoreException e1) {
-				e1.printStackTrace();
-			}
-
-		}
-
-	}
-
 	@Override
-	public ArrayList<Metrics> getMetrics(File file){
+	public ArrayList<Metrics> getClassMetrics(File file){
 		
 		metricListClass.clear();
 		loadMetrics();
@@ -507,4 +503,30 @@ public class Testview implements PidescoView, MetricsServices{
 	}
 
 	
+	
+	/**
+	 * Creates an array with package Metrics from a file.
+	 * @param file, represents the file that's going to get his Metrics analyzed.
+	 * @return an array with all analyzed package Metrics.
+	 * 
+	 */
+	
+	@Override
+	public ArrayList<Metrics> getPackageMetrics(File file) {
+		
+		metricListPackage.clear();
+		loadMetrics();
+		
+		getProjectMetricsOnViewedClass(file);
+		
+		ArrayList<Metrics> newArray = new ArrayList<>();
+		
+
+		for(int i  =  0; i < metricListPackage.size(); i++) {
+			newArray.add(metricListPackage.get(i));
+		}
+		
+		return newArray;
+	}
+
 }
