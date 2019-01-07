@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ExtPointTest
+Bundle-SymbolicName: pt.iscde.metrics.extPointTest;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: pt.iscde.metrics.extPointTest
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: pa.iscde.metrics;bundle-version="1.0.0",
+ org.eclipse.swt;bundle-version="3.108.0"
+Import-Package: pa.iscde.metrics.extensibility
